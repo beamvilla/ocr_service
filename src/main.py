@@ -1,46 +1,23 @@
-import torch
-import cv2
-import sys
-sys.path.append("./")
+import io
+from PIL import Image
+from fastapi import FastAPI, File, UploadFile
 
-from src.models.text_recognition import TextRecognitionModel
-from src.image_processing import *
-
-
-device = torch.device("cuda")
+from src.usecase import TextRecognitionUsecase
+from src.schema import APIResponseBody
+from src.config.config import AppConfig
 
 
-model = TextRecognitionModel().to(device)
-model.load_state_dict(torch.load("./models/model.pt"))
-model.eval()
+app_config = AppConfig("./config/config.yaml")
+text_recognition_usecase = TextRecognitionUsecase(app_config)
 
+app = FastAPI()
 
-image_path = "./dataset/offline_test/Hard-to-recognize-images-in-the-MNIST-test-dataset_Q320.jpg"
-raw_image = cv2.imread(image_path)
-raw_gray_image = cv2.cvtColor(raw_image, cv2.COLOR_BGR2GRAY)
-preprocessed_image = get_binary_image(image=raw_gray_image, binary_threshold=150)
-contours = get_contours(preprocessed_image=preprocessed_image)
-chars, boxes = get_char_boxes(
-    contours=contours,
-    image=raw_gray_image,
-    image_shape=(28, 28)
+@app.post(
+    "/ocr_service", 
+    response_model=APIResponseBody
 )
-chars = torch.tensor(chars, dtype=torch.float32).unsqueeze(1)
-
-with torch.no_grad():
-    chars = chars.to(device)
-    preds = model(chars)
-label_names = list("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-pred_word = ""
-
-for pred, box in zip(preds, boxes):
-    x, y, w, h = box
-    
-    pred_id = pred.argmax(0).item()
-    pred_text = label_names[pred_id]
-
-    pred_word += pred_text
-    last_x2 = x + w
-
-print(pred_word)
+async def recognize(image: UploadFile = File(...)):
+    image = Image.open(io.BytesIO(await image.read()))
+    image = Image.fromarray(image)
+    text_in_image = text_recognition_usecase.get_text(image)
+    return {"success": True, "text_in_image": text_in_image}

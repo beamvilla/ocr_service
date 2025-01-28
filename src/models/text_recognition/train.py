@@ -4,7 +4,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 
 from .eval import get_test_loss
-from utils.log_utils import get_logger
+from src.utils.log_utils import get_logger
 
 
 def train_model(
