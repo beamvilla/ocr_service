@@ -13,12 +13,10 @@ from src.models.text_recognition import (
     train_model
 )
 from src.utils.log_utils import get_logger
+from config.train_config import TrainConfig
 
 
-batch_size = 64
-device = "cuda"
-model_dir = "./models/"
-epochs = 100
+train_config = TrainConfig("./config/train.yaml")
 
 """
 Prepare dataset
@@ -27,7 +25,8 @@ Prepare dataset
 get_logger().info("Load dataset.")
 datasets = load_data(
     mnist_path="./dataset/mnist.npz",
-    alpha_path="./dataset/alpha_data_60000.csv"
+    alpha_path="./dataset/alpha_data_60000.csv",
+    input_size=(train_config.INPUT_WIDTH, train_config.INPUT_HEIGHT)
 )
 
 total_data = len(datasets)
@@ -35,14 +34,14 @@ train_size = int(0.8 * total_data)
 test_size = total_data - train_size
 train_dataset, test_dataset = random_split(datasets, [train_size, test_size])
 
-train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+train_dataloader = DataLoader(train_dataset, batch_size=train_config.BATCH_SIZE, shuffle=True)
+test_dataloader = DataLoader(test_dataset, batch_size=train_config.BATCH_SIZE, shuffle=True)
 
 """
 Build model
 """
 get_logger().info("Build model.")
-text_recognition_model = TextRecognitionModel().to(device)
+text_recognition_model = TextRecognitionModel().to(train_config.DEVICE)
 
 """
 Train model
@@ -58,7 +57,8 @@ train_model(
     model=text_recognition_model,
     loss_function=loss,
     optimizer=optimizer,
-    device=device,
-    model_dir=model_dir,
-    epochs=epochs
+    device=train_config.DEVICE,
+    model_dir=train_config.MODEL_DIR,
+    epochs=train_config.EPOCHS,
+    patience=train_config.PATIENCE
 )

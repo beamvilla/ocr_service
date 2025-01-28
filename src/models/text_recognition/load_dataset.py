@@ -17,7 +17,8 @@ def load_mnist_data(dataset_path: str) -> Tuple[np.array]:
 
 def load_data(
     mnist_path: str = "./dataset/mnist.npz",
-    alpha_path: str = "./dataset/A_Z Handwritten Data.csv"
+    alpha_path: str = "./dataset/A_Z Handwritten Data.csv",
+    input_size: Tuple[int, int] = (28, 28)
 ) -> TensorDataset:
     # MNIST Data
     digit_image_train, digit_label_train, digit_image_test, digit_label_test = load_mnist_data(mnist_path)
@@ -37,7 +38,7 @@ def load_data(
     alpha_image = alpha_data.drop(["0"], axis=1)  # Drop target column
     alpha_image = np.reshape(
         alpha_image.values,
-        (alpha_image.shape[0], 28, 28)
+        (alpha_image.shape[0], input_size[0], input_size[1])
     ) # Resize to (28*28)
 
     # Combine datasets
