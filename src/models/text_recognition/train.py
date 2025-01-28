@@ -73,3 +73,4 @@ def train_model(
 
         if not_improve == patience:
             get_logger().info("Test loss not have improvement, then stop training.")
+            return
