@@ -64,7 +64,7 @@ def get_char_boxes(
 
         char = cv2.resize(padded, (resized_image_width, resized_image_height))
         char = char.astype(np.float32) / 255.0  # Normalize
-        char = np.stack((char, ) * 3, axis = -1) # Expand gray to 3 Channels
+        #char = np.stack((char, ) * 3, axis = -1) # Expand gray to 3 Channels
         chars.append(char)
     return chars, boxes
     

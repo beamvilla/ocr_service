@@ -28,7 +28,7 @@ Prepare dataset
 get_logger().info("Load dataset.")
 datasets = load_data(
     mnist_path="./dataset/mnist.npz",
-    alpha_path="./dataset/alpha_data_10000.csv"
+    alpha_path="./dataset/alpha_data_60000.csv"
 )
 
 total_data = len(datasets)

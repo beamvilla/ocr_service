@@ -17,18 +17,17 @@ def load_mnist_data(dataset_path: str) -> Tuple[np.array]:
 
 def load_data(
     mnist_path: str = "./dataset/mnist.npz",
-    alpha_path: str = "./dataset/A_Z Handwritten Data.csv",
-    subset_size: int = 10000
+    alpha_path: str = "./dataset/A_Z Handwritten Data.csv"
 ) -> TensorDataset:
     # MNIST Data
     digit_image_train, digit_label_train, digit_image_test, digit_label_test = load_mnist_data(mnist_path)
     digit_label = np.hstack((
-        digit_label_train[:min(subset_size, len(digit_label_train))], 
-        digit_label_test[:min(subset_size, len(digit_label_test))]
+        digit_label_train, 
+        digit_label_test
     ))
     digit_image = np.vstack((
-        digit_image_train[:min(subset_size, len(digit_label_train))],
-        digit_image_test[:min(subset_size, len(digit_label_train))]
+        digit_image_train,
+        digit_image_test
     ))
    
     #A-Z Data
@@ -45,6 +44,7 @@ def load_data(
     labels = np.hstack((digit_label, alpha_label))
     images = np.vstack((digit_image, alpha_image))
 
+    images = images.astype(np.float32) / 255.0
     images = torch.tensor(images, dtype=torch.float32).unsqueeze(1)  # Ex shape: (total, 1, 28, 28)
     # Convert labels to tensors
     labels = torch.tensor(labels, dtype=torch.long)  # Ex shape: (total,)
