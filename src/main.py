@@ -1,4 +1,5 @@
 import io
+import numpy as np
 from PIL import Image
 from fastapi import FastAPI, File, UploadFile
 
@@ -18,6 +19,6 @@ app = FastAPI()
 )
 async def recognize(image: UploadFile = File(...)):
     image = Image.open(io.BytesIO(await image.read()))
-    image = Image.fromarray(image)
+    image = np.array(image)
     text_in_image = text_recognition_usecase.get_text(image)
     return {"success": True, "text_in_image": text_in_image}

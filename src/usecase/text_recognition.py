@@ -32,9 +32,9 @@ class TextRecognitionUsecase:
         chars, boxes = get_char_boxes(
             contours=contours,
             image=raw_gray_image,
-            image_shape=(self.config.IMAGE_WIDTH, self.config.IMAGE_HEIGHT)
+            image_shape=(self.config.INPUT_WIDTH, self.config.INPUT_WIDTH)
         )
-        chars = torch.tensor(chars, dtype=torch.float32).unsqueeze(1)
+        chars = torch.tensor(np.array(chars), dtype=torch.float32).unsqueeze(1)
         return chars, boxes
 
     def get_text(self, image: np.array) -> str:
