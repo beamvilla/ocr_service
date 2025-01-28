@@ -15,7 +15,7 @@ from src.models.text_recognition import (
 from src.utils.log_utils import get_logger
 
 
-batch_size = 32
+batch_size = 64
 device = "cuda"
 model_dir = "./models/"
 epochs = 100

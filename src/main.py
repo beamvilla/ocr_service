@@ -10,12 +10,12 @@ from src.image_processing import *
 device = torch.device("cuda")
 
 
-model = TextRecognitionModel()
+model = TextRecognitionModel().to(device)
 model.load_state_dict(torch.load("./models/model.pt"))
 model.eval()
 
 
-image_path = "./dataset/offline_test/Thai_ID_Card_Mockup_1.jpg"
+image_path = "./dataset/offline_test/Hard-to-recognize-images-in-the-MNIST-test-dataset_Q320.jpg"
 raw_image = cv2.imread(image_path)
 raw_gray_image = cv2.cvtColor(raw_image, cv2.COLOR_BGR2GRAY)
 preprocessed_image = get_binary_image(image=raw_gray_image, binary_threshold=150)
@@ -26,7 +26,10 @@ chars, boxes = get_char_boxes(
     image_shape=(28, 28)
 )
 chars = torch.tensor(chars, dtype=torch.float32).unsqueeze(1)
-preds = model(chars)
+
+with torch.no_grad():
+    chars = chars.to(device)
+    preds = model(chars)
 label_names = list("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 pred_word = ""

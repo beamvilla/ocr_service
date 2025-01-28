@@ -15,7 +15,8 @@ def train_model(
     optimizer: torch.optim,
     device: torch.device,
     model_dir: str,
-    epochs: int = 50
+    epochs: int = 50,
+    patience: int = 10
 ):
     def batch_train(
         images: DataLoader, 
@@ -41,6 +42,7 @@ def train_model(
         os.makedirs(model_dir)
 
     min_loss = None
+    not_improve = 0
     for epoch in range(epochs):
         for _, (images, labels) in enumerate(train_dataloader):
             batch_train(
@@ -53,15 +55,21 @@ def train_model(
             )
         
        
-        test_loss = get_test_loss(
+        test_loss, acc = get_test_loss(
             val_dataloader=val_dataloader,
             model=model,
             loss_function=loss_function,
             device=device
         )
-        get_logger().info(f"Epoch {epoch}, Test loss : {test_loss}")
+        get_logger().info(f"Epoch {epoch}, Test loss: {test_loss}, Acc: {acc}")
 
         if min_loss is None or test_loss < min_loss:
             min_loss = test_loss
             get_logger().info(f"Save model")
             torch.save(model.state_dict(), os.path.join(model_dir, "model.pt"))
+            not_improve = 0
+        else:
+            not_improve += 1
+
+        if not_improve == patience:
+            get_logger().info("Test loss not have improvement, then stop training.")
