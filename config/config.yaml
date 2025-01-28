@@ -1,0 +1,4 @@
+DEVICE: cuda
+INPUT_WIDTH: 28
+INPUT_HEIGHT: 28
+MODEL_PATH: ./models/model.pt
