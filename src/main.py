@@ -15,7 +15,7 @@ model.load_state_dict(torch.load("./models/model.pt"))
 model.eval()
 
 
-image_path = "./dataset/offline_test/Thai_ID_Card_Mockup_2.jpg"
+image_path = "./dataset/offline_test/Thai_ID_Card_Mockup_1.jpg"
 raw_image = cv2.imread(image_path)
 raw_gray_image = cv2.cvtColor(raw_image, cv2.COLOR_BGR2GRAY)
 preprocessed_image = get_binary_image(image=raw_gray_image, binary_threshold=150)
@@ -31,9 +31,13 @@ label_names = list("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 pred_word = ""
 
-for pred in preds:
+for pred, box in zip(preds, boxes):
+    x, y, w, h = box
+    
     pred_id = pred.argmax(0).item()
     pred_text = label_names[pred_id]
+
     pred_word += pred_text
+    last_x2 = x + w
 
 print(pred_word)

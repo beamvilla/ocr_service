@@ -18,8 +18,7 @@ from src.utils.log_utils import get_logger
 batch_size = 32
 device = "cuda"
 model_dir = "./models/"
-eval_every = 1
-epochs = 10
+epochs = 100
 
 """
 Prepare dataset
@@ -61,6 +60,5 @@ train_model(
     optimizer=optimizer,
     device=device,
     model_dir=model_dir,
-    eval_every=eval_every,
     epochs=epochs
 )

@@ -1,10 +1,10 @@
 import os
 import torch
-from tqdm import tqdm
 from torch import nn
 from torch.utils.data import DataLoader
 
 from .eval import get_test_loss
+from utils.log_utils import get_logger
 
 
 def train_model(
@@ -15,7 +15,6 @@ def train_model(
     optimizer: torch.optim,
     device: torch.device,
     model_dir: str,
-    eval_every: int = 1,
     epochs: int = 50
 ):
     def batch_train(
@@ -42,7 +41,7 @@ def train_model(
         os.makedirs(model_dir)
 
     min_loss = None
-    for epoch in tqdm(range(epochs)):
+    for epoch in range(epochs):
         for _, (images, labels) in enumerate(train_dataloader):
             batch_train(
                 images=images,
@@ -53,14 +52,16 @@ def train_model(
                 device=device
             )
         
-        if epoch + 1 == eval_every:
-            test_loss = get_test_loss(
-                val_dataloader=val_dataloader,
-                model=model,
-                loss_function=loss_function,
-                device=device
-            )
+       
+        test_loss = get_test_loss(
+            val_dataloader=val_dataloader,
+            model=model,
+            loss_function=loss_function,
+            device=device
+        )
+        get_logger().info(f"Epoch {epoch}, Test loss : {test_loss}")
 
-            if min_loss is None or test_loss < min_loss:
-                min_loss = test_loss
-                torch.save(model.state_dict(), os.path.join(model_dir, "model.pt"))
+        if min_loss is None or test_loss < min_loss:
+            min_loss = test_loss
+            get_logger().info(f"Save model")
+            torch.save(model.state_dict(), os.path.join(model_dir, "model.pt"))
